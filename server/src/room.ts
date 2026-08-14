@@ -5,7 +5,7 @@ export interface ConnectedCLient{
     ws:WebSocket ;
     clientId:string ;
     name:string;
-    isAlive:Boolean ;
+    isAlive:boolean ;
     
 }
 export interface CellState{
@@ -56,7 +56,8 @@ export function CurrentSnapshot(){
 export function broadcast(message : object , excludedClientId ?:string){
     const data = JSON.stringify(message);
     room.clients.forEach((c)=>{
-        if (c.clientId === excludedClientId) return ;  // for user that we dont have to send the update to optional parameter i used here
+        if (c.clientId === excludedClientId) return ;  // basically when a user 
+        // joins others should get the join message but the user dont have to .for user that we dont have to send the update to optional parameter i used here
         if (c.ws.readyState === c.ws.OPEN){   // only send the data if the conenction is open 
             c.ws.send(data); 
         }
