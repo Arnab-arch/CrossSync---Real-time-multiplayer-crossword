@@ -11,7 +11,7 @@ import {
     broadcast
 } from "./room.js";
 
-const PORT = 5001 ;
+const PORT = process.env.PORT ? Number(process.env.PORT): 5001 ;
 
 // normal http server created
 const httpServer = createServer((req, res) => {

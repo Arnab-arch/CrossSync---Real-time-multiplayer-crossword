@@ -65,3 +65,117 @@ body {
 .activity-item { font-size: 12px; color: #9ca3af; padding: 3px 0; border-bottom: 1px solid #2a2e37; }
 .activity-item.join { color: #4ade80; }
 .activity-item.leave { color: #f87171; }
+
+/* ── Landing screen ───────────────────────────────── */
+.landing {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.landing-card {
+  background: #1c1f26;
+  border: 1px solid #2a2e37;
+  border-radius: 12px;
+  padding: 32px 36px;
+  width: 320px;
+  text-align: center;
+}
+
+.landing-card h1 {
+  font-size: 24px;
+  margin: 0 0 4px;
+}
+
+.landing-card .subtitle {
+  margin-bottom: 20px;
+}
+
+.landing-meta {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  font-size: 13px;
+  color: #9ca3af;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #2a2e37;
+}
+
+.landing-meta b {
+  color: #e5e7eb;
+  display: block;
+  font-size: 15px;
+}
+
+.landing-card input {
+  width: 100%;
+  padding: 10px 12px;
+  background: #2a2e37;
+  border: 1px solid #3a3f4b;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+  margin-bottom: 14px;
+}
+
+.landing-card input:focus {
+  border-color: #8b5cf6;
+}
+
+.landing-card button {
+  width: 100%;
+  padding: 10px;
+  background: #8b5cf6;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.landing-card button:hover {
+  background: #7c3aed;
+}
+
+.landing-card button:disabled {
+  background: #3a3f4b;
+  cursor: not-allowed;
+}
+
+/* ── Join toast ───────────────────────────────────── */
+.toast-stack {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 100;
+}
+
+.toast {
+  background: #1c1f26;
+  border-left: 3px solid #4ade80;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-size: 13px;
+  color: #e5e7eb;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  animation: toast-in 0.2s ease-out;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* ── Cell glow when a specific user typed it ────────── */
+.cell input.cell-glow {
+  box-shadow: 0 0 0 2px var(--glow-color), 0 0 10px var(--glow-color);
+  border-color: var(--glow-color);
+}
