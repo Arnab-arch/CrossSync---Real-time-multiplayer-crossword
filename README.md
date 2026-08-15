@@ -14,13 +14,7 @@ and a discrete "reaction" action (typing a letter into a shared grid).
 
 ---
 
-**## 🎥 Project Demo
-
-<video src="./demo/demo_video.mp4" controls width="100%"></video>
-
-▶️ Open the demo video directly
-
-Setup instructions**
+## Setup instructions
 
 ### Server
 ```bash
@@ -53,14 +47,14 @@ requirement.
 ## Tech stack
 
 - **Server:** Node.js, TypeScript, the `ws` package (a thin WebSocket
-transport library — not a sync framework; it gives raw connection
-primitives only, everything else — rooms, broadcast, presence,
-heartbeat — is hand-written)
+  transport library — not a sync framework; it gives raw connection
+  primitives only, everything else — rooms, broadcast, presence,
+  heartbeat — is hand-written)
 - **Client:** React + TypeScript (Vite), native browser `WebSocket` API
-— no `socket.io-client` or equivalent
+  — no `socket.io-client` or equivalent
 - **Deployment:** Render (backend, supports persistent WebSocket
-connections — required, since most static hosts including Vercel's
-serverless functions do not), Vercel (frontend static hosting)
+  connections — required, since most static hosts including Vercel's
+  serverless functions do not), Vercel (frontend static hosting)
 
 ---
 
@@ -76,32 +70,32 @@ function is the actual gatekeeper for what's trusted:
 
 ```typescript
 export function ParseClientMsg(raw: string): clientMessage | null {
-let data: unknown;
-try {
-data = JSON.parse(raw);
-} catch {
-return null;
-}
-if (typeof data !== "object" || data === null || !("type" in data)) {
-return null;
-}
-const msg = data as Record<string, unknown>;
-switch (msg.type) {
-case "cursor":
-if (
-typeof msg.clientId === "string" &&
-typeof msg.x === "number" &&
-typeof msg.y === "number" &&
-typeof msg.seq === "number" &&
-typeof msg.ts === "number"
-) {
-return msg as unknown as CursorMessage;
-}
-return null;
-// ...same pattern for join / reaction / pong
-default:
-return null; // unknown type — rejected, never guessed at
-}
+    let data: unknown;
+    try {
+        data = JSON.parse(raw);
+    } catch {
+        return null;
+    }
+    if (typeof data !== "object" || data === null || !("type" in data)) {
+        return null;
+    }
+    const msg = data as Record<string, unknown>;
+    switch (msg.type) {
+        case "cursor":
+            if (
+                typeof msg.clientId === "string" &&
+                typeof msg.x === "number" &&
+                typeof msg.y === "number" &&
+                typeof msg.seq === "number" &&
+                typeof msg.ts === "number"
+            ) {
+                return msg as unknown as CursorMessage;
+            }
+            return null;
+        // ...same pattern for join / reaction / pong
+        default:
+            return null; // unknown type — rejected, never guessed at
+    }
 }
 ```
 
@@ -128,15 +122,14 @@ happens:
 
 ```typescript
 case "join": {
-clientId = msg.clientId;
-addclient(clientId, msg.name, ws);
+    clientId = msg.clientId;
+    addclient(clientId, msg.name, ws);
 
-const snapshot = CurrentSnapshot();
-ws.send(JSON.stringify({ type: "messagesnap", ...snapshot } satisfies ServerMessages));
+    const snapshot = CurrentSnapshot();
+    ws.send(JSON.stringify({ type: "messagesnap", ...snapshot } satisfies ServerMessages));
 
-broadcast({ type: "user\_joined", clientId, name: msg.name } satisfies ServerMessages, clientId);
-break;
-
+    broadcast({ type: "user_joined", clientId, name: msg.name } satisfies ServerMessages, clientId);
+    break;
 }
 ```
 This was chosen over replaying the full action history because the
@@ -156,11 +149,11 @@ so outgoing cursor updates are capped client-side to once per 30ms
 
 ```typescript
 sendCursor(x: number, y: number) {
-const now = Date.now();
-if (now - this.lastCursorSentAt < this.CURSOR_THROTTLE) return;
-this.lastCursorSentAt = now;
-this.seq += 1;
-this.send({ type: "cursor", clientId: this.clientId, x, y, seq: this.seq, ts: now });
+    const now = Date.now();
+    if (now - this.lastCursorSentAt < this.CURSOR_THROTTLE) return;
+    this.lastCursorSentAt = now;
+    this.seq += 1;
+    this.send({ type: "cursor", clientId: this.clientId, x, y, seq: this.seq, ts: now });
 }
 ```
 That's a 2–4x reduction in traffic versus raw events, and combined with
@@ -187,31 +180,30 @@ that target time, and linearly interpolates between them:
 
 ```typescript
 getInterpolatedPosition(now: number): { x: number; y: number } | null {
-if (this.samples.length === 0) return null;
-if (this.samples.length === 1) return { x: this.samples[0].x, y: this.samples[0].y };
+    if (this.samples.length === 0) return null;
+    if (this.samples.length === 1) return { x: this.samples[0].x, y: this.samples[0].y };
 
-const targetTime = now - this.RENDER\_DELAY\_MS;
-let prev = this.samples[0];
-let curr = this.samples[1];
+    const targetTime = now - this.RENDER_DELAY_MS;
+    let prev = this.samples[0];
+    let curr = this.samples[1];
 
-for (let i = 0; i < this.samples.length - 1; i++) {
-    const a = this.samples[i];
-    const b = this.samples[i + 1];
-    if (a.ts <= targetTime && targetTime <= b.ts) {
-        prev = a;
-        curr = b;
-        break;
+    for (let i = 0; i < this.samples.length - 1; i++) {
+        const a = this.samples[i];
+        const b = this.samples[i + 1];
+        if (a.ts <= targetTime && targetTime <= b.ts) {
+            prev = a;
+            curr = b;
+            break;
+        }
     }
-}
 
-const span = curr.ts - prev.ts;
-if (span <= 0) return { x: curr.x, y: curr.y };
-const t = Math.max(0, Math.min(1, (targetTime - prev.ts) / span));
-return {
-    x: prev.x + (curr.x - prev.x) \* t,
-    y: prev.y + (curr.y - prev.y) \* t,
-};
-
+    const span = curr.ts - prev.ts;
+    if (span <= 0) return { x: curr.x, y: curr.y };
+    const t = Math.max(0, Math.min(1, (targetTime - prev.ts) / span));
+    return {
+        x: prev.x + (curr.x - prev.x) * t,
+        y: prev.y + (curr.y - prev.y) * t,
+    };
 }
 ```
 
@@ -244,16 +236,16 @@ server pings all connected clients and flips their `isAlive` flag to
 
 ```typescript
 setInterval(() => {
-room.clients.forEach((client) => {
-if (!client.isAlive) {
-client.ws.terminate();
-removeClient(client.clientId);
-broadcast({ type: "user_left", clientId: client.clientId } satisfies ServerMessages);
-return;
-}
-client.isAlive = false;
-client.ws.send(JSON.stringify({ type: "ping" } satisfies ServerMessages));
-});
+    room.clients.forEach((client) => {
+        if (!client.isAlive) {
+            client.ws.terminate();
+            removeClient(client.clientId);
+            broadcast({ type: "user_left", clientId: client.clientId } satisfies ServerMessages);
+            return;
+        }
+        client.isAlive = false;
+        client.ws.send(JSON.stringify({ type: "ping" } satisfies ServerMessages));
+    });
 }, HEARTBEAT_INTERVAL);
 ```
 This bounds disconnect detection to roughly one heartbeat interval
@@ -268,16 +260,16 @@ unexpected `close`, it automatically reconnects with exponential backoff
 
 ```typescript
 ws.onclose = () => {
-console.log("WebSocket disconnected");
-if (!this.manuallyClosed) this.scheduleReconnect();
+    console.log("WebSocket disconnected");
+    if (!this.manuallyClosed) this.scheduleReconnect();
 };
 
 private scheduleReconnect() {
-const delay = Math.min(1000 * 2 ** this.reconnectAttempts, this.MAX_RECONNECT_DELAY);
-this.reconnectAttempts += 1;
-setTimeout(() => {
-if (!this.manuallyClosed) this.ws = this.connect();
-}, delay);
+    const delay = Math.min(1000 * 2 ** this.reconnectAttempts, this.MAX_RECONNECT_DELAY);
+    this.reconnectAttempts += 1;
+    setTimeout(() => {
+        if (!this.manuallyClosed) this.ws = this.connect();
+    }, delay);
 }
 ```
 Because the identity is reused, the server sees this as the same user
@@ -296,10 +288,10 @@ number that increments on every send. The server tracks the last accepted
 
 ```typescript
 export function isStale(clientId: string, seq: number): boolean {
-const last = room.lastSeq.get(clientId) ?? -1;
-if (seq <= last) return true;
-room.lastSeq.set(clientId, seq);
-return false;
+    const last = room.lastSeq.get(clientId) ?? -1;
+    if (seq <= last) return true;
+    room.lastSeq.set(clientId, seq);
+    return false;
 }
 ```
 This handles real-world out-of-order delivery without requiring
@@ -318,11 +310,11 @@ users' devices never affects correctness.
 O(n²) re-broadcast bug the assignment explicitly calls out:
 ```typescript
 export function broadcast(message: object, excludedClientId?: string) {
-const data = JSON.stringify(message);
-room.clients.forEach((c) => {
-if (c.clientId === excludedClientId) return;
-if (c.ws.readyState === c.ws.OPEN) c.ws.send(data);
-});
+    const data = JSON.stringify(message);
+    room.clients.forEach((c) => {
+        if (c.clientId === excludedClientId) return;
+        if (c.ws.readyState === c.ws.OPEN) c.ws.send(data);
+    });
 }
 ```
 `excludedClientId` is optional — cursor broadcasts exclude the sender
@@ -340,13 +332,13 @@ through a different code path than everyone else.
 Three separated layers:
 
 - **Transport** — `connection.ts` (client), `server.ts` (server). Owns
-the raw WebSocket connection, reconnect/backoff, heartbeat response.
-Knows nothing about cursors or crossword logic specifically.
+  the raw WebSocket connection, reconnect/backoff, heartbeat response.
+  Knows nothing about cursors or crossword logic specifically.
 - **Protocol** — `protocol.ts` (shared, identical on both sides). Defines
-every message shape and validates incoming data.
+  every message shape and validates incoming data.
 - **Rendering** — `render.ts`, `interpolation.ts`. Pure,
-framework-agnostic logic for positioning/coloring cursors — no
-WebSocket code, no React, testable on their own.
+  framework-agnostic logic for positioning/coloring cursors — no
+  WebSocket code, no React, testable on their own.
 
 `App.tsx` is the only file that wires all three together with actual UI.
 
@@ -367,38 +359,38 @@ In words, the next things I'd build on top of this, roughly in priority
 order:
 
 1. **Horizontal scaling** — right now all room state lives in one
-process's memory (`room.ts`'s `Map`). Running multiple server
-instances behind a load balancer would break broadcasting immediately,
-since a client on instance A has no way to reach a client on instance
-B. The fix is a shared pub/sub layer (Redis is the standard choice) —
-every server instance publishes incoming messages to a shared channel
-instead of only broadcasting to its own local client list, and every
-instance subscribes to relay whatever comes through. Room membership
-would also need to move out of in-process memory into something all
-instances can read (Redis again, or a small database), so presence is
-consistent no matter which instance a given client is connected to.
+   process's memory (`room.ts`'s `Map`). Running multiple server
+   instances behind a load balancer would break broadcasting immediately,
+   since a client on instance A has no way to reach a client on instance
+   B. The fix is a shared pub/sub layer (Redis is the standard choice) —
+   every server instance publishes incoming messages to a shared channel
+   instead of only broadcasting to its own local client list, and every
+   instance subscribes to relay whatever comes through. Room membership
+   would also need to move out of in-process memory into something all
+   instances can read (Redis again, or a small database), so presence is
+   consistent no matter which instance a given client is connected to.
 2. **Multiple rooms** — the current build is intentionally a single
-shared room, since that's explicitly acceptable scope per the
-assignment FAQ. Expanding this is mostly mechanical: the server
-already models `room` as one object; turning that into a `Map<roomId,
-RoomState>` and adding a `roomId` field to every message would extend
-the existing broadcast/presence logic without needing a redesign.
+   shared room, since that's explicitly acceptable scope per the
+   assignment FAQ. Expanding this is mostly mechanical: the server
+   already models `room` as one object; turning that into a `Map<roomId,
+   RoomState>` and adding a `roomId` field to every message would extend
+   the existing broadcast/presence logic without needing a redesign.
 3. **Adaptive throttling based on measured RTT** — currently the cursor
-throttle (30ms) is a fixed constant. A more advanced version would
-have the server track round-trip latency per client (timestamp a ping,
-measure the pong delay) and adjust how aggressively that specific
-client's updates get throttled or batched, so someone on a slow
-connection doesn't flood a queue that can't keep up.
+   throttle (30ms) is a fixed constant. A more advanced version would
+   have the server track round-trip latency per client (timestamp a ping,
+   measure the pong delay) and adjust how aggressively that specific
+   client's updates get throttled or batched, so someone on a slow
+   connection doesn't flood a queue that can't keep up.
 4. **Basic conflict reconciliation for simultaneous cell edits** — right
-now, two people typing into the exact same cell at nearly the same
-time resolves via plain last-sequence-wins, which is honest but
-simple. A next step would be surfacing that visually (e.g. a brief
-flash showing "you were overwritten") rather than silently discarding
-the loser.
+   now, two people typing into the exact same cell at nearly the same
+   time resolves via plain last-sequence-wins, which is honest but
+   simple. A next step would be surfacing that visually (e.g. a brief
+   flash showing "you were overwritten") rather than silently discarding
+   the loser.
 5. **Persisting room state** — currently everything resets on server
-restart. Even a lightweight persistence layer (SQLite, or periodic
-snapshotting to a file/small DB) would let the crossword survive a
-Render redeploy or free-tier spin-down without losing progress.
+   restart. Even a lightweight persistence layer (SQLite, or periodic
+   snapshotting to a file/small DB) would let the crossword survive a
+   Render redeploy or free-tier spin-down without losing progress.
 
 ---
 
@@ -409,9 +401,9 @@ Render redeploy or free-tier spin-down without losing progress.
 - No authentication — names are self-reported, unverified
 - No horizontal scaling implementation (written plan only, above)
 - Render free-tier cold starts add latency on first connection after
-idling
+  idling
 - Reaction conflicts resolve via last-sequence-wins with no visible
-reconciliation UI
+  reconciliation UI
 
 ---
 
