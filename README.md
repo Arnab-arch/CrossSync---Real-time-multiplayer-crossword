@@ -8,6 +8,8 @@ and a discrete "reaction" action (typing a letter into a shared grid).
 **Live demo:** https://cross-sync-real-time-multiplayer-cr.vercel.app
 **Backend:** https://crosssync-real-time-multiplayer-crossword.onrender.com
 
+[![Watch the demo video](https://img.shields.io/badge/▶%20Watch%20Demo%20Video-screenapp.io-2ea44f?style=for-the-badge)](https://screenapp.io/app/v/a1TMg-HT1L)
+
 > The backend runs on Render's free tier and may take 30–60s to wake up on
 > the first request after a period of inactivity — open the link a minute
 > before testing if it's been idle.
@@ -352,8 +354,6 @@ them.
 ---
 
 ## How I'd expand this next
-
-
 
 In words, the next things I'd build on top of this, roughly in priority
 order:
