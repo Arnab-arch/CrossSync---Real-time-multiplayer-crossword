@@ -55,7 +55,7 @@ export default function App() {
     useEffect(() => {
         if (!joined) return; // don't connect until the landing form is submitted
 
-        const conn = new Connection(import.meta.env.ITE_WS_URL, CLIENT_ID, name);
+        const conn = new Connection(import.meta.env.VITE_WS_URL, CLIENT_ID, name);
         connRef.current = conn;
 
         conn.onMessage((msg: ServerMessages) => {

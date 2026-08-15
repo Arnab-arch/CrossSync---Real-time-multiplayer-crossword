@@ -11,7 +11,7 @@ import {
     broadcast
 } from "./room.js";
 
-const PORT = process.env.PORT ? Number(process.env.PORT): 5001 ;
+
 
 // normal http server created
 const httpServer = createServer((req, res) => {
@@ -120,5 +120,6 @@ setInterval(() => {
     });
     
 }, HEARTBEAT_INTERVAL);
+const PORT = process.env.PORT ? Number(process.env.PORT): 5001 ;
 
 httpServer.listen(PORT , ()=>console.log(`server ruuning on ${PORT}`));
